@@ -1,0 +1,87 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #fafafa;
+}
+.dragOverInactive {
+    background-color: #eee;
+}
+.dragOverActive {
+    background-color: white;
+}
+.italic {
+    font-style: italic;
+}
+.container {
+    margin: 4em auto;
+    width: 37.5em;
+    font-size: 1.25em;
+}
+.title {
+    font-size: 2.5em;
+    text-align: center;
+}
+.desc {
+    margin-top: 2.5em;
+}
+.load_area {
+    margin: 2em 0;
+}
+.load_or {
+    font-size: 1.5em;
+}
+.drop_zone {
+    border: 2px dashed #bbb;
+    padding: 1.5625em;
+    border-radius: 0.625em;
+    color: #aaa;
+}
+.show_on_file_loaded {
+    margin-top: 2.5em;
+}
+.show_on_file_loaded h2 {
+    margin-bottom: 1em;
+}
+.show_on_file_loaded ol {
+    margin-bottom: 2em;
+}
+.controls input {
+    margin-bottom: 1em;
+}
+.processed_subs {
+    margin-top: 2.5em;
+}
+.panel {
+    margin-top: 1em;
+    padding: 0;
+}
+.panel-body {
+    padding: 0;
+}
+table {
+    width: 100%;
+}
+tr {
+    font-size: 14px;
+}
+table tr:hover, table tr:nth-child(even):hover {
+    background-color: #d3e7f8;
+    cursor: pointer;
+}
+table tr.header:hover {
+    background-color: white;
+    cursor: auto;
+}
+td, th {
+    padding: 0.375em;
+    white-space: pre;
+}
+.dialogLine {
+    padding-left: 0.375em;
+}
+table tr:nth-child(even) {
+    background-color: #f0f0f0;
+}
+table tr.selected_row {
+    background-color: #5faaec;
+    color: white;
+}
