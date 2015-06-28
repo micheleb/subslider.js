@@ -5,8 +5,10 @@
   <title>Subslider.js</title>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.16/angular.min.js"></script>
-  <script src="main_ng.js"></script>
   <script src="dirPagination.js"></script>
+  <script src="lib/ui-bootstrap/ui-bootstrap-custom-0.13.0.min.js"></script>
+  <script src="lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.0.min.js"></script>
+  <script src="main_ng.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link href="styles.css" rel="stylesheet" type="text/css">
 </head>
@@ -14,6 +16,16 @@
   <div id="container" ng-controller="FileUploadController" class="container">
     <div class="title">Subslider.js</div>
 
+    <div class="flair">
+      <a class="twitter-share-button"
+         data-count="none"
+         href="https://twitter.com/intent/tweet?text=Hello%20world">
+        Tweet</a>
+      <iframe
+          src="https://ghbtns.com/github-btn.html?user=micheleb&repo=subslider.js&type=star&count=true"
+              frameborder="0" scrolling="0"
+              height="20px"></iframe>
+    </div>
     <div class="desc">
       <p>
         Subslider.js is a simple script to fix out-of-sync
@@ -28,12 +40,21 @@
       <div id="drop_zone" class="drop_zone"
            dropzone
            on-file-drop="fileDropped">
-          Drop your .srt file here
+          {{ uploadedFile.name }}
       </div>
       <div class="load_or">
         or...
       </div>
-      <input type="file" id="file" name="file" />
+
+      <button type="button"
+              class="btn btn-primary btn-lg"
+              onclick="document.getElementById('fileChooser').click()">Choose
+        file&hellip;</button>
+
+      <input class="fileInput" type="file" id="fileChooser" name="file"
+             accept="application/x-subrip"
+             file-uploader
+             on-file-chosen="fileDropped"/>
     </div>
 
     <div class="show_on_file_loaded" ng-if="fileUpload.fileUploaded">
@@ -41,16 +62,25 @@
       <p>
         <ol>
           <li>Play your video with subtitles enabled, and skip to a dialog</li>
-          <li>Take note of the exact time at which the dialog starts</li>
-          <li>Set that time in the <span class="italic">start at</span> field
-            below</li>
-          <li>Find that line in the table below (use search!),
+          <li>Take note of the exact time at which they start talking</li>
+          <li>Find that dialog in the table below (use search!),
             and select it</li>
+          <li>Change the <span class="italic">start at</span> field to the
+            time at which the dialog starts (and hence, at which the subtitle
+            should start being displayed)</li>
           <li>Press submit</li>
         </ol>
       </p>
 
       <div class="controls">
+
+        <div
+            ng-class="{true: 'has-success', false: 'has-error'}[selectedSub.id !== undefined]">
+          <label for="lineid">Line id</label>
+          <input type="text" class="form-control" id="lineid"
+                 ng-model="selectedSub.id"/>
+        </div>
+
         <div
             ng-class="{true: 'has-success', false: 'has-error'}[start.timestamp !== undefined]">
           <label for="startat">Start at</label>
@@ -59,18 +89,41 @@
                  ng-model="start.timestamp" validate-time-format/>
         </div>
 
-        <div
-            ng-class="{true: 'has-success', false: 'has-error'}[selected.subtitle !== undefined]">
-          <label for="lineid">Line id</label>
-          <input type="text" class="form-control" id="lineid"
-                 ng-model="selected.subtitle"/>
-        </div>
-
         <div>
           <button type="button"
-                  ng-class="{'disabled': !start.timestamp || !selected.subtitle}"
+                  ng-class="{'disabled': !selectedSub.id || start.timestamp === undefined || start.timestamp === selectedSub.from}"
                   ng-click="onSubmit()"
                   class="btn btn-primary btn-lg">Submit</button>
+
+          <div id="subs-generated">
+            <script type="text/ng-template" id="myModalContent.html">
+              <div class="modal-header">
+                <h3 class="modal-title">Subtitles successfully processed!</h3>
+              </div>
+              <div class="modal-body">
+                <p>Your subtitles are ready.</p>
+
+                <p>
+                  Click the "Download .srt" button below to download your new
+                  subtitles, or copy the content of the text area further
+                  below and paste it to a new .srt file using a text editor.
+                </p>
+
+                <div>
+                  <button class="btn btn-primary">Download .srt</button>
+                </div>
+
+                <div>
+                  <textarea class="raw_subs"
+                            ng-model="editedSubs.rawText"
+                            select-on-click></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="cancel()">Close</button>
+              </div>
+            </script>
+          </div>
         </div>
       </div>
 
@@ -97,8 +150,8 @@
               <tr
                   dir-paginate="subtitle in subtitles | filter:q | itemsPerPage: pageSize"
                   current-page="currentPage"
-                  ng-click="setSelected(subtitle.id)"
-                  ng-class="{'selected_row': subtitle.id === selected.subtitle}">
+                  ng-click="setSelected(subtitle)"
+                  ng-class="{'selected_row': subtitle.id === selectedSub.id}">
                 <td>{{ subtitle.id }}</td>
                 <td>{{ subtitle.from | date:"HH:mm:ss,sss":'UTC' }}</td>
                 <td>{{ subtitle.to | date:"HH:mm:ss,sss":'UTC' }}</td>
@@ -116,7 +169,7 @@
                 on-page-change="pageChangeHandler(newPageNumber)"
                 template-url="dirPagination.tpl.html">
 
-                </dir-pagination-controls>
+            </dir-pagination-controls>
           </div>
         </div>
 
@@ -128,5 +181,21 @@
          src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67"
          alt="Fork me on GitHub"
          data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+  <script>window.twttr = (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0],
+        t = window.twttr || {};
+    if (d.getElementById(id)) return t;
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "https://platform.twitter.com/widgets.js";
+    fjs.parentNode.insertBefore(js, fjs);
+
+    t._e = [];
+    t.ready = function(f) {
+      t._e.push(f);
+    };
+
+    return t;
+  }(document, "script", "twitter-wjs"));</script>
 </body>
 </html>

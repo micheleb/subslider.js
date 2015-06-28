@@ -2,6 +2,10 @@ body {
     font-family: 'Open Sans', sans-serif;
     background-color: #fafafa;
 }
+/* see CSS section from https://angular-ui.github.io/bootstrap/ */
+.nav, .pagination, .carousel, .panel-title a {
+    cursor: pointer;
+}
 .dragOverInactive {
     background-color: #eee;
 }
@@ -20,20 +24,24 @@ body {
     font-size: 2.5em;
     text-align: center;
 }
-.desc {
+.flair {
     margin-top: 2.5em;
 }
 .load_area {
     margin: 2em 0;
 }
 .load_or {
-    font-size: 1.5em;
+    font-size: 1.25em;
+    margin: 1em 0;
 }
 .drop_zone {
     border: 2px dashed #bbb;
     padding: 1.5625em;
     border-radius: 0.625em;
     color: #aaa;
+}
+input.fileInput {
+    display: none;
 }
 .show_on_file_loaded {
     margin-top: 2.5em;
@@ -81,7 +89,12 @@ td, th {
 table tr:nth-child(even) {
     background-color: #f0f0f0;
 }
-table tr.selected_row {
+table tr.selected_row, table tr.selected_row:hover {
     background-color: #5faaec;
     color: white;
+}
+.raw_subs {
+    width: 100%;
+    height: 8em;
+    margin-top: 1em;
 }

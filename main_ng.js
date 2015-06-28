@@ -7,19 +7,26 @@ if (!window.File || !window.FileReader || !window.FileList) {
 }
 
 var subsliderJS = angular.module('subsliderJS',
-  ['angularUtils.directives.dirPagination']);
+    ['angularUtils.directives.dirPagination', 'ui.bootstrap']);
 
-function FileUploadController($scope, $filter) {
+subsliderJS.config(['$compileProvider',
+  function ($compileProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/);
+  }]);
 
-  $scope.fileUpload = { fileUploaded: false };
-  $scope.selected = { subtitle: undefined };
-  $scope.start = { timestamp: undefined };
+function FileUploadController($scope, $filter, $modal) {
 
-  $scope.readFile = function(file) {
+  $scope.fileUpload = {fileUploaded: false};
+  $scope.selectedSub = {id: undefined, from: undefined};
+  $scope.start = {timestamp: undefined};
+  $scope.uploadedFile = {name: 'Drop your .srt file here'};
+  $scope.editedSubs = {rawText: undefined};
+
+  $scope.readFile = function (file) {
     var reader = new FileReader();
 
-    reader.onload = (function() {
-      return function(e) {
+    reader.onload = (function () {
+      return function (e) {
         $scope.parseSubtitles(e.target.result);
       };
     })(file);
@@ -34,47 +41,47 @@ function FileUploadController($scope, $filter) {
    * group 1 for hours to capture group 4 for milliseconds
    * @returns {number} the equivalent timestamp in milliseconds
    */
-  $scope.convertTimeStamp = function(captureGroups) {
+  $scope.convertTimeStamp = function (captureGroups) {
     return parseInt(captureGroups[3]) +
-      parseInt(captureGroups[2]) * 1000 +
-      parseInt(captureGroups[1]) * 1000 * 60 +
-      parseInt(captureGroups[0]) * 1000 * 60 * 60;
+        parseInt(captureGroups[2]) * 1000 +
+        parseInt(captureGroups[1]) * 1000 * 60 +
+        parseInt(captureGroups[0]) * 1000 * 60 * 60;
   }
 
-  $scope.parseSubtitles = function(fileContent) {
+  $scope.parseSubtitles = function (fileContent) {
     var subtitleLines = fileContent.split(/\r?\n/),
-      subtitles = [],
-      index = 0,
-      len = subtitleLines.length,
-      lenMinusOne = len - 1,
-      line,
-      currentSubtitle,
-      numericCounter,
-      timeRe = /(\d{2}):(\d{2})\:(\d{2}),(\d{3}) \-\-> (\d{2}):(\d{2})\:(\d{2}),(\d{3})/,
-      timeMatch;
+        subtitles = [],
+        index = 0,
+        len = subtitleLines.length,
+        lenMinusOne = len - 1,
+        line,
+        currentSubtitle,
+        numericCounter,
+        timeRe = /(\d{2}):(\d{2}):(\d{2}),(\d{3}) \-\-> (\d{2}):(\d{2}):(\d{2}),(\d{3})/,
+        timeMatch;
 
     $scope.fileUpload.fileUploaded = true;
 
     /*
-      The .srt format for a subtitle is:
-      (numeric counter)
-      (start --> end)
-      (any number of dialog lines)
-      (empty line)
+     The .srt format for a subtitle is:
+     (numeric counter)
+     (start --> end)
+     (any number of dialog lines)
+     (empty line)
 
-      e.g.:
+     e.g.:
 
-      1
-      00:00:00,161 --> 00:00:03,413
-      I want some sort of document about
-      what we've been trying to do here.
+     1
+     00:00:00,161 --> 00:00:03,413
+     I want some sort of document about
+     what we've been trying to do here.
 
-      2
-      00:00:03,447 --> 00:00:07,654
-      I get to pick the writer.
-      I'm going with <i>New York Magazine</i> and you.
+     2
+     00:00:03,447 --> 00:00:07,654
+     I get to pick the writer.
+     I'm going with <i>New York Magazine</i> and you.
 
-      etc.
+     etc.
      */
 
     while (index < len) {
@@ -83,7 +90,7 @@ function FileUploadController($scope, $filter) {
       numericCounter = parseInt(line);
 
       if (numericCounter) {
-        currentSubtitle = { id: numericCounter };
+        currentSubtitle = {id: numericCounter};
         // need to make sure there's one more line, at least
         if (index === lenMinusOne) {
           $scope.subtitleError = true;
@@ -127,27 +134,120 @@ function FileUploadController($scope, $filter) {
     $scope.$apply();
   };
 
-  $scope.fileDropped = function() {
-    //Get the file
+  $scope.fileDropped = function () {
+    // get the file
     var file = $scope.uploadedFile;
 
-    if (file.type != 'application/x-subrip') {
-      console.log('results may vary')
-    }
     $scope.readFile(file);
-
-    //Clear the uploaded file
-    $scope.uploadedFile = null;
   };
 
-  $scope.onSubmit = function() {
-    var selected = $filter('filter')($scope.subtitles, {id: $scope.selected.subtitle}, true),
-      selectedSub = selected[0];
-
-    console.log('yay! starts at ' + $scope.start.timestamp + ', line is: id(' +
-      selectedSub.id + '), text(' + selectedSub.dialogLines +
-      '), originalStart(' + selectedSub.from + ')');
+  /**
+   * Taken from http://stackoverflow.com/a/10073788/1159164.
+   * @param n the number to be left-padded
+   * @param width the number of positions
+   * @param [z] the character to pad the number with (default is '0')
+   * @returns {string} a string generated by padding n using character z so that
+   *  its length is 'width'
+   */
+  function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
+
+  $scope.msToTimeFormat = function(ts) {
+      var millis = ts % 1000,
+          secs = Math.floor((ts / 1000) % 60),
+          mins = Math.floor((ts / (60000)) % 60),
+          hours = Math.floor((ts / (3600000)) % 24);
+
+      return pad(hours, 2) + ":" + pad(mins, 2) + ":" + pad(secs, 2) + "," +
+          pad(millis, 3);
+  };
+
+  $scope.onSubmit = function () {
+    var selected = $filter('filter')($scope.subtitles, {
+          id: $scope.selectedSub.id
+        }, true),
+        selectedSub = selected[0],
+        delta = $scope.start.timestamp - selectedSub.from,
+        i,
+        len,
+        currentSub,
+        firstShownIndex = 0,
+        convertTs = $scope.msToTimeFormat;
+
+    // apply the delta
+    $scope.subtitles.forEach(function(element) {
+      element.from += delta;
+      element.to += delta;
+    });
+
+    // if some subtitles have negative "from" or "to" values, remove them
+    if ($scope.subtitles[0].from < 0) {
+      // find the first subtitle to be displayed
+      firstShownIndex = $scope.subtitles.length - 1;
+
+      for (i = 0, len = $scope.subtitles.length; i < len; i++) {
+        currentSub = $scope.subtitles[i];
+
+        if (currentSub.to > 0) {
+          if (currentSub.from < 0) {
+            // subs can't start in the past!
+            currentSub.from = 0;
+          }
+          firstShownIndex = i;
+          // since subs are sorted by display time, we're done
+          break;
+        } // else this subtitle won't be displayed
+      }
+
+      if (firstShownIndex > 0) {
+        // drop subtitles that won't be displayed
+        $scope.subtitles.splice(0, firstShownIndex);
+
+        // renumber subtitles so that they start at 1
+        $scope.subtitles.forEach(function (element, index) {
+          element.id = index + 1;
+        });
+      }
+
+    } // else there's no reason to process subs any further
+
+    // create the file
+    $scope.editedSubs.rawText = $scope.subtitles.reduce(function(prev, curr) {
+      return prev + curr.id + "\n" +
+          convertTs(curr.from) + " --> " + convertTs(curr.to) + "\n" +
+          curr.dialogLines + "\n\n";
+    }, "");
+
+    // 1:23:45,678
+
+    // show the modal dialog
+    $scope.open();
+
+  };
+
+  $scope.animationsEnabled = true;
+
+  $scope.open = function (size) {
+
+    $modal.open({
+      animation: $scope.animationsEnabled,
+      templateUrl: 'myModalContent.html',
+      controller: 'ModalInstanceCtrl',
+      size: size,
+      resolve: {
+        editedSubs: function () {
+          return $scope.editedSubs;
+        }
+      }
+    });
+  };
+
+  $scope.toggleAnimation = function () {
+    $scope.animationsEnabled = !$scope.animationsEnabled;
+  };
 }
 
 function PaginationController($scope) {
@@ -155,28 +255,52 @@ function PaginationController($scope) {
   $scope.currentPage = 1;
   $scope.pageSize = 20;
 
-  $scope.setSelected = function(subtitleId) {
-    $scope.selected.subtitle = subtitleId;
+  $scope.setSelected = function(subtitle) {
+    $scope.selectedSub.id = subtitle.id;
+    $scope.selectedSub.from = subtitle.from;
+    $scope.start.timestamp = subtitle.from;
   };
 }
 
 subsliderJS.controller('FileUploadController', FileUploadController);
 subsliderJS.controller('PaginationController', PaginationController);
 
-subsliderJS.directive("dropzone", function($parse, $document) {
+subsliderJS.directive("fileUploader", function ($parse) {
   return {
     restrict: "A",
-    link: function(scope, element, attrs) {
+    link: function (scope, elem, attrs) {
+      var onFileChosen = $parse(attrs.onFileChosen);
+
+      elem.bind('change', function (evt) {
+        scope.uploadedFile = evt.target.files[0];
+        scope.$apply(onFileChosen(scope));
+      });
+    }
+  };
+});
+
+subsliderJS.controller('ModalInstanceCtrl',
+    function ($scope, $modalInstance, editedSubs) {
+      $scope.editedSubs = editedSubs;
+
+      $scope.cancel = function () {
+      $modalInstance.dismiss('hey, edited subs were ' +
+        $scope.editedSubs.rawText);
+    };
+});
+
+subsliderJS.directive("dropzone", function ($parse, $document) {
+  return {
+    restrict: "A",
+    link: function (scope, elem, attrs) {
       var onFileDrop = $parse(attrs.onFileDrop),
-        // the native elements
-        doc = $document[0],
-        el = element[0],
-        // used to prevent flickering when dragging
-        timeoutId,
+        doc = $document[0], // the native document DOM element
+        el = elem[0], // the native element
+        timeoutId, // used to prevent flickering when dragging
         dragging = false;
 
       // when an item is dragged over the document
-      var onDragOver = function(e) {
+      var onDragOver = function (e) {
         clearTimeout(timeoutId);
         e.stopPropagation();
         e.preventDefault();
@@ -188,10 +312,10 @@ subsliderJS.directive("dropzone", function($parse, $document) {
       };
 
       // when the user is no longer dragging over the document
-      var onDragEnd = function(e) {
+      var onDragEnd = function (e) {
         e.stopPropagation();
         e.preventDefault();
-        timeoutId = setTimeout(function() {
+        timeoutId = setTimeout(function () {
           dragging = false;
           doc.body.classList.remove('dragOverInactive');
           el.classList.remove('dragOverActive');
@@ -199,7 +323,7 @@ subsliderJS.directive("dropzone", function($parse, $document) {
       }
 
       // when the user drops the item
-      var onDragDrop = function(e) {
+      var onDragDrop = function (e) {
         onDragEnd(e);
         var file = e.dataTransfer.files[0];
         el.innerHTML = file.name;
@@ -207,7 +331,7 @@ subsliderJS.directive("dropzone", function($parse, $document) {
       };
 
       // when a file is dropped
-      var loadFile = function(file) {
+      var loadFile = function (file) {
         scope.uploadedFile = file;
         scope.$apply(onFileDrop(scope));
       };
@@ -218,21 +342,21 @@ subsliderJS.directive("dropzone", function($parse, $document) {
       $document.bind("dragleave", onDragEnd);
 
       // dragging ends on the element
-      element.bind("drop", function(e) {
+      elem.bind("drop", function (e) {
         onDragDrop(e);
       });
     }
   }
 });
 
-subsliderJS.directive("validateTimeFormat", function() {
+subsliderJS.directive("validateTimeFormat", function () {
 
   // format is 00:01:23,456
   var regex = /^\s*(\d{1,2}):(\d{2}):(\d{2}),(\d{3})\s*$/;
 
   return {
     require: 'ngModel',
-    link: function(scope, elem, attrs, ctrl) {
+    link: function (scope, elem, attrs, ctrl) {
 
 
       ctrl.$parsers.push(function(value) {
@@ -242,12 +366,22 @@ subsliderJS.directive("validateTimeFormat", function() {
         }
 
         if (regex.test(value)) {
-          return scope.convertTimeStamp(regex.exec(value));
+          // shift capturing groups by 1 position to the left
+          var captured = regex.exec(value);
+          captured.splice(0, 1)
+          return scope.convertTimeStamp(captured);
         }
 
         // undefined means that the date syntax is invalid and
         // this will cause a parse error during validation
         return undefined;
+      });
+
+      ctrl.$formatters.push(function(value) {
+        if (value == '' || value == null || value == undefined) {
+          return null;
+        }
+        return scope.msToTimeFormat(value);
       });
 
       ctrl.$validators.integer = function (modelValue, viewValue) {
@@ -260,3 +394,17 @@ subsliderJS.directive("validateTimeFormat", function() {
     }
   }
 });
+
+subsliderJS.directive('selectOnClick', ['$window', function($window) {
+  return {
+    restrict: 'A',
+    link: function (scope, element) {
+      element.on('click', function () {
+        if (!$window.getSelection().toString()) {
+          // Required for mobile Safari
+          this.setSelectionRange(0, this.value.length)
+        }
+      });
+    }
+  };
+}]);
