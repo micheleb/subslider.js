@@ -1,6 +1,12 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
 body {
     font-family: 'Open Sans', sans-serif;
     background-color: #fafafa;
+    /* Margin bottom by footer height */
+    margin-bottom: 8em;
 }
 /* see CSS section from https://angular-ui.github.io/bootstrap/ */
 .nav, .pagination, .carousel, .panel-title a {
@@ -20,12 +26,41 @@ body {
     width: 37.5em;
     font-size: 1.25em;
 }
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 8em;
+    background-color: #f5f5f5;
+}
+.footer .small {
+    font-size: 0.9em;
+    text-align: center;
+    padding: 1.2em;
+}
+.footer .small a {
+    display: inline-block;
+}
+.footer .small p {
+    margin: 0.4em;
+}
+.footer .small img {
+    border: none;
+    height: 1.9375em;
+    margin-top: 0.4em;
+}
 .title {
     font-size: 2.5em;
+    font-weight: bold;
     text-align: center;
 }
 .flair {
-    margin-top: 2.5em;
+    margin: 2.5em 0 1em;
+    height: 20px; /* same height that the buttons have */
+}
+.fb_iframe_widget span {
+    vertical-align: baseline !important; /* override valign bottom */
 }
 .load_area {
     margin: 2em 0;
@@ -39,6 +74,9 @@ body {
     padding: 1.5625em;
     border-radius: 0.625em;
     color: #aaa;
+}
+ol li {
+    margin-bottom: 0.75em;
 }
 input.fileInput {
     display: none;

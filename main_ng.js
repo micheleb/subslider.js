@@ -1,18 +1,30 @@
-/**
- * Created by michele on 6/22/15.
+/*
+ subslider.js - a script to fix out-of-sync subtitles.
+ Copyright (C) 2015 Michele Bonazza - http://michelebonazza.com
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 // check for the various File API support.
 if (!window.File || !window.FileReader || !window.FileList) {
-  alert('The File APIs are not fully supported in this browser.');
+  alert('The File APIs are not fully supported in this browser. ' +
+    'Subslider.js may not work!');
 }
 
 var subsliderJS = angular.module('subsliderJS',
     ['angularUtils.directives.dirPagination', 'ui.bootstrap']);
-
-subsliderJS.config(['$compileProvider',
-  function ($compileProvider) {
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/);
-  }]);
 
 function FileUploadController($scope, $filter, $modal) {
 
@@ -21,6 +33,7 @@ function FileUploadController($scope, $filter, $modal) {
   $scope.start = {timestamp: undefined};
   $scope.uploadedFile = {name: 'Drop your .srt file here'};
   $scope.editedSubs = {rawText: undefined};
+  $scope.processing = {subtitles: false};
 
   $scope.readFile = function (file) {
     var reader = new FileReader();
@@ -214,14 +227,12 @@ function FileUploadController($scope, $filter, $modal) {
 
     } // else there's no reason to process subs any further
 
-    // create the file
+    // create the file content
     $scope.editedSubs.rawText = $scope.subtitles.reduce(function(prev, curr) {
       return prev + curr.id + "\n" +
           convertTs(curr.from) + " --> " + convertTs(curr.to) + "\n" +
           curr.dialogLines + "\n\n";
     }, "");
-
-    // 1:23:45,678
 
     // show the modal dialog
     $scope.open();
@@ -240,6 +251,9 @@ function FileUploadController($scope, $filter, $modal) {
       resolve: {
         editedSubs: function () {
           return $scope.editedSubs;
+        },
+        uploadedFile: function() {
+          return $scope.uploadedFile;
         }
       }
     });
@@ -280,13 +294,23 @@ subsliderJS.directive("fileUploader", function ($parse) {
 });
 
 subsliderJS.controller('ModalInstanceCtrl',
-    function ($scope, $modalInstance, editedSubs) {
+    function ($scope, $modalInstance, editedSubs, uploadedFile) {
       $scope.editedSubs = editedSubs;
+      $scope.uploadedFile = uploadedFile;
 
       $scope.cancel = function () {
-      $modalInstance.dismiss('hey, edited subs were ' +
-        $scope.editedSubs.rawText);
-    };
+        $modalInstance.dismiss('hey, edited subs were ' +
+          $scope.editedSubs.rawText);
+      };
+
+      $scope.saveSrtFile = function() {
+        console.log("saveSrt " + $scope.uploadedFile.name);
+
+        var blob = new Blob([$scope.editedSubs.rawText],
+          {type: "application/x-subrip;charset=utf-8"});
+
+        saveAs(blob, $scope.uploadedFile.name);
+      };
 });
 
 subsliderJS.directive("dropzone", function ($parse, $document) {

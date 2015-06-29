@@ -3,24 +3,64 @@
 <head lang="en">
   <meta charset="UTF-8">
   <title>Subslider.js</title>
-  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700'
+        rel='stylesheet' type='text/css'>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.16/angular.min.js"></script>
-  <script src="dirPagination.js"></script>
+  <script src="lib/pagination/dirPagination.js"></script>
   <script src="lib/ui-bootstrap/ui-bootstrap-custom-0.13.0.min.js"></script>
   <script src="lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.0.min.js"></script>
   <script src="main_ng.js"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link href="styles.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+<div id="fb-root"></div>
+  <!-- social stuff -->
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v2.3";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+  <script>window.twttr = (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0],
+        t = window.twttr || {};
+    if (d.getElementById(id)) return t;
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "https://platform.twitter.com/widgets.js";
+    fjs.parentNode.insertBefore(js, fjs);
+
+    t._e = [];
+    t.ready = function(f) {
+      t._e.push(f);
+    };
+
+    return t;
+  }(document, "script", "twitter-wjs"));</script>
+  <!-- end of social stuff -->
+
+
   <div id="container" ng-controller="FileUploadController" class="container">
     <div class="title">Subslider.js</div>
 
     <div class="flair">
       <a class="twitter-share-button"
          data-count="none"
-         href="https://twitter.com/intent/tweet?text=Hello%20world">
+         href="https://twitter.com/intent/tweet?text=Fix%20your%20out-of-sync%20subtitles%20with%20%23subslider.js,%20a%20free,%20open-source%20tool!">
         Tweet</a>
+
+      <div class="fb-share-button"
+           data-href="http://micheleb.github.io/subslider.js"
+           data-layout="button"></div>
+
+      <div class="g-plus" data-action="share" data-annotation="none"
+           data-href="http://micheleb.github.io/subslider.js"></div>
+
       <iframe
           src="https://ghbtns.com/github-btn.html?user=micheleb&repo=subslider.js&type=star&count=true"
               frameborder="0" scrolling="0"
@@ -28,8 +68,8 @@
     </div>
     <div class="desc">
       <p>
-        Subslider.js is a simple script to fix out-of-sync
-        subtitles in the .srt format.
+        Subslider.js is a simple script to fix out-of-sync subtitles in the
+        .srt format.
       </p>
       <p>
         Load your .srt file using the dialog below, and follow the instructions.
@@ -75,13 +115,6 @@
       <div class="controls">
 
         <div
-            ng-class="{true: 'has-success', false: 'has-error'}[selectedSub.id !== undefined]">
-          <label for="lineid">Line id</label>
-          <input type="text" class="form-control" id="lineid"
-                 ng-model="selectedSub.id"/>
-        </div>
-
-        <div
             ng-class="{true: 'has-success', false: 'has-error'}[start.timestamp !== undefined]">
           <label for="startat">Start at</label>
           <input type="text" id="startat" name="startat"
@@ -110,7 +143,9 @@
                 </p>
 
                 <div>
-                  <button class="btn btn-primary">Download .srt</button>
+                  <button class="btn btn-primary"
+                          ng-click="saveSrtFile()">Download
+                    .srt</button>
                 </div>
 
                 <div>
@@ -167,7 +202,7 @@
             <dir-pagination-controls
                 boundary-links="true"
                 on-page-change="pageChangeHandler(newPageNumber)"
-                template-url="dirPagination.tpl.html">
+                template-url="lib/pagination/dirPagination.tpl.html">
 
             </dir-pagination-controls>
           </div>
@@ -176,26 +211,35 @@
       </div>
     </div>
   </div>
+
+  <footer class="footer">
+    <div class="small">
+      <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+        <img alt="Creative Commons License"
+             src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+      </a>
+      <p>
+        This work is licensed under a
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+          Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+      </p>
+
+      <p>
+        Copyright &copy; 2015 - <a href="http://michelebonazza.com">Michele Bonazza</a>
+      </p>
+    </div>
+  </footer>
+
   <a href="https://github.com/micheleb/subslider.js">
     <img style="position: absolute; top: 0; right: 0; border: 0;"
          src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67"
          alt="Fork me on GitHub"
-         data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
-  <script>window.twttr = (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0],
-        t = window.twttr || {};
-    if (d.getElementById(id)) return t;
-    js = d.createElement(s);
-    js.id = id;
-    js.src = "https://platform.twitter.com/widgets.js";
-    fjs.parentNode.insertBefore(js, fjs);
+         data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png">
+  </a>
 
-    t._e = [];
-    t.ready = function(f) {
-      t._e.push(f);
-    };
-
-    return t;
-  }(document, "script", "twitter-wjs"));</script>
+  <script xmlns="http://www.w3.org/1999/xhtml" type="application/ecmascript"
+          async="" src="lib/fileSaver.js/Blob.js"></script>
+  <script xmlns="http://www.w3.org/1999/xhtml" type="application/ecmascript"
+          async="" src="lib/fileSaver.js/FileSaver.min.js"></script>
 </body>
 </html>
