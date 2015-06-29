@@ -190,6 +190,9 @@ function FileUploadController($scope, $filter, $modal) {
         firstShownIndex = 0,
         convertTs = $scope.msToTimeFormat;
 
+    // show the modal dialog
+    $scope.open();
+
     // apply the delta
     $scope.subtitles.forEach(function(element) {
       element.from += delta;
@@ -234,8 +237,6 @@ function FileUploadController($scope, $filter, $modal) {
           curr.dialogLines + "\n\n";
     }, "");
 
-    // show the modal dialog
-    $scope.open();
 
   };
 
@@ -297,6 +298,7 @@ subsliderJS.controller('ModalInstanceCtrl',
     function ($scope, $modalInstance, editedSubs, uploadedFile) {
       $scope.editedSubs = editedSubs;
       $scope.uploadedFile = uploadedFile;
+      $scope.modalTitle = "Subtitles successfully processed!";
 
       $scope.cancel = function () {
         $modalInstance.dismiss('hey, edited subs were ' +
