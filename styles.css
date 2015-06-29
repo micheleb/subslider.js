@@ -26,6 +26,9 @@ body {
     width: 37.5em;
     font-size: 1.25em;
 }
+.desc {
+    margin-top: 3em;
+}
 .footer {
     position: absolute;
     bottom: 0;

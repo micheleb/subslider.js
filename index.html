@@ -22,62 +22,15 @@
 
   <script src="main_ng.js"></script>
 
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
-
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link href="styles.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<div id="fb-root"></div>
-  <!-- social stuff -->
-  <script>(function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v2.3";
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));</script>
-
-  <script>window.twttr = (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0],
-        t = window.twttr || {};
-    if (d.getElementById(id)) return t;
-    js = d.createElement(s);
-    js.id = id;
-    js.src = "https://platform.twitter.com/widgets.js";
-    fjs.parentNode.insertBefore(js, fjs);
-
-    t._e = [];
-    t.ready = function(f) {
-      t._e.push(f);
-    };
-
-    return t;
-  }(document, "script", "twitter-wjs"));</script>
-  <!-- end of social stuff -->
 
 
   <div id="container" ng-controller="FileUploadController" class="container">
     <div class="title">Subslider.js</div>
 
-    <div class="flair">
-      <a class="twitter-share-button"
-         data-count="none"
-         href="https://twitter.com/intent/tweet?text=Fix%20your%20out-of-sync%20subtitles%20with%20%23subslider.js,%20a%20free,%20open-source%20tool!">
-        Tweet</a>
-
-      <div class="fb-share-button"
-           data-href="http://micheleb.github.io/subslider.js"
-           data-layout="button"></div>
-
-      <div class="g-plus" data-action="share" data-annotation="none"
-           data-href="http://micheleb.github.io/subslider.js"></div>
-
-      <iframe
-          src="https://ghbtns.com/github-btn.html?user=micheleb&repo=subslider.js&type=star&count=true"
-              frameborder="0" scrolling="0"
-              height="20px"></iframe>
-    </div>
     <div class="desc">
       <p>
         Subslider.js is a simple script to fix out-of-sync subtitles in the
@@ -253,22 +206,6 @@
           async="" src="lib/fileSaver.js/Blob.js"></script>
   <script xmlns="http://www.w3.org/1999/xhtml" type="application/ecmascript"
           async="" src="lib/fileSaver.js/FileSaver.min.js"></script>
-
-  <!-- Piwik (Google Analytics alternative) -->
-  <script type="text/javascript">
-    var _paq = _paq || [];
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function() {
-      var u="//analytics.sketchtogether.com/";
-      _paq.push(['setTrackerUrl', u+'piwik.php']);
-      _paq.push(['setSiteId', 2]);
-      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-      g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-    })();
-  </script>
-  <noscript><p><img src="//analytics.sketchtogether.com/piwik.php?idsite=2" style="border:0;" alt="" /></p></noscript>
-  <!-- End Piwik Code -->
 
 </body>
 </html>

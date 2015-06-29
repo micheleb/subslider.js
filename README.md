@@ -1,24 +1,33 @@
 # subslider.js
 A script to fix out of sync subtitles - in javascript
 
-WORK IN PROGRESS
-================
-subslider.js is not ready yet, but will soon be (before July 5th, 2015).
-
-What is it for
+What it is for
 ==============
-This script can be used to easily fix offsets in subtitle files.
+This script can be used to easily fix subtitle files that aren't synced with 
+the audio.
 
 How to use it
 =============
-Just navigate to [this page](https://pages.github.com) and follow the 
-instructions, or checkout this repo and open `index.html` in your favorite 
+Just navigate to [this page](http://micheleb.github.io/subslider.js/) and follow
+the instructions, or checkout this repo and open `index.html` in your favorite 
 browser.
+
+As the instructions say, the process is simple:
+
+1. Load your subtitles file (nothing is uploaded, there is no backend server 
+involved)
+2. Find a dialog in the video, and take note of the timestamp at which it starts
+3. Find that same dialog in the subslider.js page, and select it
+4. Change the subtitle's _start_ field so that it matches the beginning of 
+the dialog
+5. Press submit and either download the edited .srt file, 
+or copy/paste its content to a new file
 
 License
 =======
-All code is released under the GPLv2 license (except for the Angular Pagination
-module source, which are release under an MIT license).
+subslider.js is released under the GPLv2 license, the libraries that it uses are
+released under different licenses. Every library is included along with its
+original `LICENSE` file. All libraries are stored inside the `lib` folder.
 
 Credits
 =======
