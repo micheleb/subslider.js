@@ -108,6 +108,7 @@ input.fileInput {
 }
 table {
     width: 100%;
+    table-layout:fixed;
 }
 tr {
     font-size: 14px;
@@ -123,6 +124,7 @@ table tr.header:hover {
 td, th {
     padding: 0.375em;
     white-space: pre;
+    word-wrap: break-word;
 }
 .dialogLine {
     padding-left: 0.375em;
