@@ -30,7 +30,7 @@ function FileUploadController($scope, $filter, $modal) {
 
   $scope.fileUpload = {fileUploaded: false};
   $scope.selectedSub = {id: undefined, from: undefined};
-  $scope.start = {timestamp: undefined};
+  $scope.start = {timestamp: undefined, index:1};
   $scope.uploadedFile = {name: 'Drop your .srt file here'};
   $scope.editedSubs = {rawText: undefined};
   $scope.processing = {subtitles: false};
@@ -190,6 +190,8 @@ function FileUploadController($scope, $filter, $modal) {
         firstShownIndex = 0,
         convertTs = $scope.msToTimeFormat;
 
+    var indexCounterOffset = parseInt($scope.start.index, 10);
+
     // show the modal dialog
     $scope.open();
 
@@ -229,6 +231,13 @@ function FileUploadController($scope, $filter, $modal) {
       }
 
     } // else there's no reason to process subs any further
+
+    // renumber subtitles if we specified an index offset
+    if (indexCounterOffset > 1) {
+      $scope.subtitles.forEach(function (element, index) {
+        element.id = index + indexCounterOffset;
+      });
+    }
 
     // create the file content
     $scope.editedSubs.rawText = $scope.subtitles.reduce(function(prev, curr) {
